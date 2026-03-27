@@ -1,0 +1,106 @@
+{
+  "transfer_location": {
+    "label": "Where is my money?",
+    "examples": [
+      "Where is my money?",
+      "Where did my transfer go?",
+      "I sent money but I don't know where it is",
+      "My funds seem to have disappeared",
+      "Can you tell me the location of my transfer?",
+      "What happened to the money I sent?",
+      "I made a payment but have no idea where it ended up",
+      "My money left my account but hasn't reached the recipient"
+    ],
+    "response": "You can track your transfer in the Wise app by going to Home and tapping on the transfer. It will show you the current status — whether it's still being processed, received by Wise, or already sent to your recipient's bank."
+  },
+  "transfer_status_check": {
+    "label": "How do I check my transfer status?",
+    "examples": [
+      "How do I check my transfer status?",
+      "How can I see if my transfer went through?",
+      "Where can I track my payment?",
+      "How do I find out the status of my transfer?",
+      "Is there a way to monitor my transaction?",
+      "How do I look up my transfer in the app?",
+      "Can I see real-time updates on my transfer?",
+      "How do I know if Wise has received my payment?"
+    ],
+    "response": "Log into your Wise account, go to Home, and tap on the transfer you want to track. You will see the live status — processing, money received, or transfer sent."
+  },
+  "transfer_arrival_time": {
+    "label": "When will my money arrive?",
+    "examples": [
+      "When will my money arrive?",
+      "How long does the transfer take?",
+      "When should my recipient expect the funds?",
+      "Has it landed yet?",
+      "What's the estimated delivery time for my transfer?",
+      "How many days until the money gets there?",
+      "How soon will the money reach them?",
+      "Is my transfer going to arrive today?",
+      "Will my recipient get the money by tomorrow?"
+    ],
+    "response": "Wise shows an estimated arrival time when you set up the transfer. If it says due today, the money should already be there — some banks just need a few extra hours to release it to the account."
+  },
+  "transfer_marked_complete": {
+    "label": "Transfer marked complete but money not arrived",
+    "examples": [
+      "Transfer marked complete but money not arrived",
+      "It says complete but the recipient hasn't received anything",
+      "My transfer shows as done but the money isn't there",
+      "Status is complete yet funds are missing",
+      "Why does it say finished if the money hasn't arrived?",
+      "Completed status but recipient still waiting for money",
+      "Transfer shows delivered but recipient got nothing",
+      "Marked as sent but still pending on their end"
+    ],
+    "response": "Wise marks a transfer complete once it has sent the funds to the recipient's bank. The receiving bank can still take up to 1 working day to release the money into the account. The recipient can ask their bank to speed this up using the transfer receipt."
+  },
+  "transfer_delayed": {
+    "label": "Transfer taking longer than estimated",
+    "examples": [
+      "Transfer taking longer than estimated",
+      "My transfer is late",
+      "Why is my transfer delayed?",
+      "It's been more than 3 days and money hasn't arrived",
+      "My payment is stuck and hasn't moved",
+      "The transfer should have arrived by now but it hasn't",
+      "My transfer is stuck in processing",
+      "Money hasn't moved in 2 days"
+    ],
+    "response": "Delays are usually caused by security checks, incorrect recipient details, weekends or public holidays, or a slow payment method — Swift transfers can take up to 6 working days. Please check your email in case Wise needs any information from you."
+  },
+  "proof_of_payment": {
+    "label": "What is a proof of payment?",
+    "examples": [
+      "What is a proof of payment?",
+      "How do I get a receipt for my transfer?",
+      "Can I download confirmation of my payment?",
+      "I need a document showing I made the transfer",
+      "Where can I get an official payment confirmation?",
+      "How do I obtain proof that I sent money?",
+      "Wise is asking for proof of payment, what do I send?",
+      "What counts as proof that I made the transfer?"
+    ],
+    "response": "A proof of payment is a bank statement or screenshot confirming you sent the money from your account. Wise may request it if your payment hasn't arrived in the expected time or if they need to verify it came from an account in your name."
+  },
+  "banking_reference_number": {
+    "label": "What is a banking partner reference number?",
+    "examples": [
+      "What is a banking partner reference number?",
+      "What does the bank reference number mean?",
+      "Where do I find the reference number for my transfer?",
+      "My bank is asking for a reference number, what is it?",
+      "What is the transaction reference code?",
+      "Can you explain what the banking reference ID is?",
+      "What is a UTR number?",
+      "My bank is asking for a UTR, where do I find it?"
+    ],
+    "response": "A banking partner reference number is a unique ID for your transfer through Wise's local banking partners. Your recipient can share it with their bank to trace the payment. In India, this is called a UTR or Unique Transaction Reference number."
+  },
+  "human_handoff": {
+    "label": "Human handoff",
+    "examples": [],
+    "response": "I'm connecting you with a human agent who can better assist you. Please hold."
+  }
+}

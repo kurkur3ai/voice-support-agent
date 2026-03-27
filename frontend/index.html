@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Voice Agent</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #0f0f1a;
+      gap: 24px;
+    }
+
+    #mic-btn {
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      border: none;
+      background: #1e1e3a;
+      cursor: pointer;
+      font-size: 52px;
+      box-shadow: 0 0 24px rgba(120, 100, 255, 0.25);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    #mic-btn:hover {
+      transform: scale(1.08);
+      box-shadow: 0 0 36px rgba(120, 100, 255, 0.45);
+    }
+
+    #mic-btn.recording {
+      background: #3a1e2e;
+      box-shadow: 0 0 40px rgba(233, 69, 96, 0.55);
+      animation: pulse 1.1s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50%       { transform: scale(1.1); }
+    }
+
+    #status {
+      color: #888;
+      font-family: system-ui, sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.03em;
+      text-align: center;
+      max-width: 360px;
+    }
+
+    #debug {
+      display: none;
+      background: #13132a;
+      border: 1px solid #2a2a50;
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-family: system-ui, sans-serif;
+      font-size: 13px;
+      color: #aaa;
+      max-width: 360px;
+      width: 100%;
+    }
+
+    #debug .transcript { color: #e0e0ff; margin-bottom: 8px; font-size: 14px; }
+    #debug .intent     { color: #7c6fff; font-weight: 600; }
+    #debug .confidence { color: #888; font-size: 12px; }
+    #debug .response   { color: #ccc; margin-top: 8px; border-top: 1px solid #2a2a50; padding-top: 8px; }
+    #debug .timings    { color: #666; font-size: 11px; margin-top: 8px; border-top: 1px solid #2a2a50; padding-top: 8px; display: flex; gap: 12px; flex-wrap: wrap; }
+    #debug .timings span { color: #555; }
+    #debug .timings b { color: #7c6fff; }
+
+    #conf-bar-wrap { background: #1e1e3a; border-radius: 4px; height: 6px; margin-top: 4px; }
+    #conf-bar      { height: 6px; border-radius: 4px; background: #7c6fff; transition: width 0.4s; }
+  </style>
+</head>
+<body>
+
+  <button id="mic-btn">🎤</button>
+  <p id="status">Click to record</p>
+
+  <div id="debug">
+    <div class="transcript" id="dbg-transcript"></div>
+    <div class="intent" id="dbg-intent"></div>
+    <div class="confidence">
+      <span id="dbg-conf-label"></span>
+      <div id="conf-bar-wrap"><div id="conf-bar" style="width:0%"></div></div>
+    </div>
+    <div class="response" id="dbg-response"></div>
+    <div class="timings" id="dbg-timings"></div>
+  </div>
+
+  <audio id="response-audio" hidden></audio>
+
+  <script>
+    const btn    = document.getElementById('mic-btn');
+    const status = document.getElementById('status');
+    const debug  = document.getElementById('debug');
+
+    let mediaRecorder = null;
+    let chunks = [];
+    let spinInterval = null;
+
+    function setStatus(msg, spinning = false) {
+      clearInterval(spinInterval);
+      if (spinning) {
+        const frames = ['⠋','⠙','⠹','⠸','⠼','⠴','⠦','⠧','⠇','⠏'];
+        let i = 0;
+        status.textContent = `${frames[i]} ${msg}`;
+        spinInterval = setInterval(() => {
+          i = (i + 1) % frames.length;
+          status.textContent = `${frames[i]} ${msg}`;
+        }, 80);
+      } else {
+        status.textContent = msg;
+      }
+    }
+
+    function showDebug({ transcript, intent, confidence, response_text, timings }) {
+      debug.style.display = 'block';
+      document.getElementById('dbg-transcript').textContent = `"${transcript}"`;
+      document.getElementById('dbg-intent').textContent     = `Intent: ${intent}`;
+      document.getElementById('dbg-conf-label').textContent = `Confidence: ${Math.round(confidence * 100)}%`;
+      document.getElementById('conf-bar').style.width       = `${Math.round(confidence * 100)}%`;
+      document.getElementById('dbg-response').textContent   = response_text;
+      if (timings) {
+        document.getElementById('dbg-timings').innerHTML =
+          `<span>STT <b>${timings.stt_ms}ms</b></span>` +
+          `<span>Classify <b>${timings.clf_ms}ms</b></span>` +
+          `<span>TTS <b>${timings.tts_ms}ms</b></span>` +
+          `<span>Total <b>${timings.total_ms}ms</b></span>`;
+      }
+    }
+
+    function playAudio(b64) {
+      const audio = document.getElementById('response-audio');
+      audio.src   = `data:audio/mp3;base64,${b64}`;
+      audio.hidden = false;
+      audio.play();
+    }
+
+    async function handleSSE(res) {
+      const reader  = res.body.getReader();
+      const decoder = new TextDecoder();
+      let   buffer  = '';
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop();
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const evt = JSON.parse(line.slice(6));
+          if (evt.status === 'transcribing')     setStatus('Transcribing audio…', true);
+          if (evt.status === 'classifying')      setStatus(`Classifying: "${evt.transcript}"`, true);
+          if (evt.status === 'generating_audio') setStatus('Preparing response…', true);
+          if (evt.status === 'done') {
+            setStatus('Click to record');
+            showDebug(evt);
+            playAudio(evt.audio_b64);
+          }
+        }
+      }
+    }
+
+    btn.addEventListener('click', async () => {
+      if (mediaRecorder && mediaRecorder.state === 'recording') {
+        mediaRecorder.stop();
+        return;
+      }
+
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        chunks = [];
+
+        mediaRecorder.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+
+        mediaRecorder.onstop = async () => {
+          stream.getTracks().forEach(t => t.stop());
+          btn.classList.remove('recording');
+          const blob = new Blob(chunks, { type: 'audio/webm' });
+          const form = new FormData();
+          form.append('file', blob, 'recording.webm');
+          setStatus('Uploading audio…', true);
+          try {
+            const res = await fetch('http://localhost:8000/voice', { method: 'POST', body: form });
+            await handleSSE(res);
+          } catch (err) {
+            setStatus('Error: ' + err.message);
+          }
+        };
+
+        mediaRecorder.start();
+        btn.classList.add('recording');
+        setStatus('Recording… click to stop');
+      } catch {
+        setStatus('Microphone access denied.');
+      }
+    });
+  </script>
+</body>
+</html>
