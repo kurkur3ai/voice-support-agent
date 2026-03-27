@@ -308,6 +308,8 @@ The `KEEP_RECORDINGS` environment variable is passed from `main.py` to the backe
 
 ## Frontend
 
+![Voice Agent UI](docs/ui-screenshot.png)
+
 `frontend/index.html` is a single-file vanilla HTML/JS UI with no build step or dependencies.
 
 **UI elements:**
