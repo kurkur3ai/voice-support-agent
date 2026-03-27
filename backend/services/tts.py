@@ -8,7 +8,7 @@ import edge_tts
 
 VOICE = "en-US-JennyNeural"
 
-_CACHE_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "cache", "tts_cache.json")
+_CACHE_PATH = os.path.join(os.path.dirname(__file__), "..", "cache", "tts_cache.json")
 
 # Load disk cache on startup
 _tts_cache: dict[str, str] = {}

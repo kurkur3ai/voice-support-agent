@@ -6,8 +6,8 @@ import numpy as np
 import ollama
 from backend.services.intents import INTENTS, HUMAN_HANDOFF
 
-# Path to the embeddings cache file — stored in <project_root>/cache/
-_CACHE_PATH = os.path.join(os.path.dirname(__file__), "..", "..", "cache", "intent_embeddings_cache.json")
+# Path to the embeddings cache file — stored in <project_root>/backend/cache/
+_CACHE_PATH = os.path.join(os.path.dirname(__file__), "..", "cache", "intent_embeddings_cache.json")
 
 # ---------------------------------------------------------------------------
 # Models

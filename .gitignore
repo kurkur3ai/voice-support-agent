@@ -15,7 +15,7 @@ env/
 
 # Project-specific — do not commit recordings or generated caches
 recordings/
-cache/
+backend/cache/
 
 # Environment variables
 .env
